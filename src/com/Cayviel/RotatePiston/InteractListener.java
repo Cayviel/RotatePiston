@@ -74,7 +74,7 @@ public class InteractListener extends PlayerListener {
 			}
 		piston.setData(dirsetto);
 		
-		if (piston.isBlockPowered()){
+		if (piston.isBlockPowered()||piston.isBlockIndirectlyPowered()){
 			if (piston.getRelative(convertdirtoface(dirsetto)).getType()==Material.AIR){
 			piston.setData((byte) (piston.getData()+8));
 			piston.getRelative(convertdirtoface(dirsetto)).setType(Material.PISTON_EXTENSION);
