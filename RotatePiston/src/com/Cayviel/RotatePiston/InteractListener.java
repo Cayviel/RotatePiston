@@ -8,6 +8,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.Action;
 
 public class InteractListener extends PlayerListener {
+	byte pdataE = 1;//2
+	byte pdataS = 1;//3
+	boolean sticky = false;
 	
 	byte clickeddirc(byte clickeddir){
 	switch (clickeddir){
@@ -22,7 +25,7 @@ public class InteractListener extends PlayerListener {
 	}
 	
 	public void onPlayerInteract(PlayerInteractEvent PlayerWithPiston){
-
+	
 		if (RotatePiston.permissionHandler == null) {
 			if (RotatePiston.useop&&(!PlayerWithPiston.getPlayer().isOp())){ return; }
 			}else{		
@@ -33,8 +36,8 @@ public class InteractListener extends PlayerListener {
 		
 		Material Blocktype = PlayerWithPiston.getClickedBlock().getType();
 		if ((Blocktype == Material.PISTON_BASE)||(Blocktype == Material.PISTON_STICKY_BASE)){
-			boolean sticky = false;
-			if (Blocktype == Material.PISTON_STICKY_BASE){sticky = true;}
+
+			if (Blocktype == Material.PISTON_STICKY_BASE){sticky = true; pdataS = 3;}else{pdataS = 1; sticky = false;}
 			BlockFace clickedface = PlayerWithPiston.getBlockFace();
 			Block piston = PlayerWithPiston.getClickedBlock();
 			
@@ -55,13 +58,7 @@ public class InteractListener extends PlayerListener {
 					}
 				}
 			}
-			piston.setTypeId(0);
-			if (sticky==false){
-				piston.setType(Material.PISTON_BASE);
-			}else{
-				piston.setType(Material.PISTON_STICKY_BASE);
-			}
-			
+
 		if (!PlayerWithPiston.getPlayer().isSneaking()){
 				if (clickeddir == dir){
 					dirsetto=clickeddirc(clickeddir);
@@ -72,23 +69,21 @@ public class InteractListener extends PlayerListener {
 			while(((byte)((dir+1) % 6)==clickeddir)||((byte)((dir+1) % 6)==clickeddirc(clickeddir))){dir = (byte)((dir+1) % 6);} //don't try sides already accessible
 			dirsetto=(byte)((dir+1) % 6);
 			}
-		piston.setData(dirsetto);
+
 		
 		if (piston.isBlockPowered()||piston.isBlockIndirectlyPowered()){
 			if (piston.getRelative(convertdirtoface(dirsetto)).getType()==Material.AIR){
-			piston.setData((byte) (piston.getData()+8));
-			piston.getRelative(convertdirtoface(dirsetto)).setType(Material.PISTON_EXTENSION);
-			if (sticky == false){
-				piston.getRelative(convertdirtoface(dirsetto)).setData(dirsetto);
-			}else{
-				piston.getRelative(convertdirtoface(dirsetto)).setData((byte) (dirsetto+8));
+			pdataE = 2;
 			}
-			
-			}
-		}
-		}
-	}
+		}else{pdataE=1;}
 		
+		Rotate(piston, (byte)(pdataE*pdataS), dirsetto);
+		pdataE=1;
+		pdataS=1;
+		
+		}
+		
+		}
 	}
 	
 	private BlockFace convertdirtoface (byte dir){
@@ -99,7 +94,18 @@ public class InteractListener extends PlayerListener {
 		case 3: return BlockFace.WEST;
 		case 4: return BlockFace.NORTH;
 		case 5: return BlockFace.SOUTH;
-		default: return BlockFace.DOWN;
+		default: {RotatePiston.log.info("enum default chose"); return BlockFace.DOWN;}
+		}
+	}
+	
+	private void Rotate(Block piston,byte pdata,byte dirsetto){
+		piston.setTypeId(0);
+		switch (pdata){
+		case 1: {piston.setTypeIdAndData(33, dirsetto, false);} break;
+		case 2: {piston.setTypeIdAndData(33, (byte) (dirsetto+8), false); piston.getRelative(convertdirtoface(dirsetto)).setTypeIdAndData(34,dirsetto,false);} break;
+		case 3: {piston.setTypeIdAndData(29, dirsetto, false);} break;
+		case 6: {piston.setTypeIdAndData(29, (byte) (dirsetto+8), false); piston.getRelative(convertdirtoface(dirsetto)).setTypeIdAndData(34,(byte) (dirsetto+8),false);} break;
+		default: RotatePiston.log.info("[RotatePiston]: something went wrong in rotation!"); break;
 		}
 	}
 }
