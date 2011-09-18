@@ -21,8 +21,13 @@ public class RotatePiston extends JavaPlugin {
 	private Configuration config;
 	static public Boolean opOnlyBoolean;
 	static public Boolean useWand;
-	static public Boolean usePerm = false;
 	static public String WandName;
+	static public Boolean usePerm = false;
+	static public Boolean EnPistons;
+	static public Boolean EnPumpkins;
+	static public Boolean EnStairs;
+	static public Boolean EnFurn;
+	static public Boolean EnDisp;
 	
 	@Override
 	public void onDisable() {
@@ -41,6 +46,11 @@ public class RotatePiston extends JavaPlugin {
 		useWand = config.getBoolean("Wand.Use a Wand", false);
 		WandName = config.getString("Wand.Wand", "AIR");
 		opOnlyBoolean = config.getBoolean("Op only (instead of Permissions)", true);
+		EnPistons = config.getBoolean("Rotate.Pistons", true);
+		EnPumpkins = config.getBoolean("Rotate.Pumpkins", false);
+		EnStairs = config.getBoolean("Rotate.Stairs", false);
+		EnFurn = config.getBoolean("Rotate.Furnaces", false);
+		EnDisp = config.getBoolean("Rotate.Dispensers", false);
 		config.save();
 
 		// set up our permissions

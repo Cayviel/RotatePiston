@@ -10,7 +10,7 @@ import org.bukkit.event.block.Action;
 public class InteractListener extends PlayerListener {
 	byte pdataE = 1;
 	byte pdataS = 1;
-
+	boolean RL = true;
 	byte clickeddirc(byte clickeddir) {
 		switch (clickeddir) {
 			case 0:
@@ -45,7 +45,7 @@ public class InteractListener extends PlayerListener {
 			PlayerWithPiston.getPlayer().isSneaking()) { // if they clicked and sneaking
 
 			Material Blocktype = PlayerWithPiston.getClickedBlock().getType();
-			if ((Blocktype == Material.PISTON_BASE) || (Blocktype == Material.PISTON_STICKY_BASE)) {
+			if ((Blocktype == Material.PISTON_BASE) || (Blocktype == Material.PISTON_STICKY_BASE)&&RotatePiston.EnPistons) {
 
 				if (Blocktype == Material.PISTON_STICKY_BASE)
 					pdataS = 3;
@@ -97,9 +97,80 @@ public class InteractListener extends PlayerListener {
 				Rotate(piston, (byte) (pdataE * pdataS), dirsetto);
 				pdataE = 1;
 				pdataS = 1;
-
+				return;
 			}
 
+			if (PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
+				RL=true;
+			}else{
+				RL=false;
+			}
+			
+			if ((Blocktype == Material.PUMPKIN)||(Blocktype == Material.JACK_O_LANTERN)&&RotatePiston.EnPumpkins){
+				
+				if (RL){
+					PlayerWithPiston.getClickedBlock().setData((byte)((PlayerWithPiston.getClickedBlock().getData()+3) % 4));
+				}else{
+					PlayerWithPiston.getClickedBlock().setData((byte)((PlayerWithPiston.getClickedBlock().getData()+1) % 4));
+				}
+				return;
+			}
+			if ((Blocktype == Material.COBBLESTONE_STAIRS)||(Blocktype == Material.WOOD_STAIRS)&&RotatePiston.EnStairs){
+				if (RL){
+				switch (PlayerWithPiston.getClickedBlock().getData()){
+				case 0:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+				case 3:PlayerWithPiston.getClickedBlock().setData((byte) 1); break;
+				case 1:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
+				case 2:PlayerWithPiston.getClickedBlock().setData((byte) 0); break;
+				default: RotatePiston.log.info("Error during Stairs rotation"); break;
+				}}else{
+					switch (PlayerWithPiston.getClickedBlock().getData()){
+					case 0:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
+					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 0); break;
+					case 1:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 1); break;
+					default: RotatePiston.log.info("Error during Stairs rotation"); break;
+					}					
+				}
+				return;
+			}
+			if (Blocktype == Material.FURNACE&&RotatePiston.EnFurn){
+				if (RL){
+					return; 
+					}
+				else{
+					switch (PlayerWithPiston.getClickedBlock().getData()){
+					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
+					case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
+					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
+					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+					default:
+						RotatePiston.log.info("Error during Furnace rotation");
+						RotatePiston.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
+						break;
+				}
+			}
+				return;
+			}
+			
+			if (Blocktype == Material.DISPENSER&&RotatePiston.EnDisp){
+				if (RL){
+					return; 
+					}
+				else{
+					switch (PlayerWithPiston.getClickedBlock().getData()){
+					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
+					case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
+					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
+					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+					default:
+						RotatePiston.log.info("Error during Dispenser rotation");
+						RotatePiston.log.info("Dispenser Data = "+ PlayerWithPiston.getClickedBlock().getData());
+						break;
+				}
+			}
+				return;
+			}
 		}
 	}
 
@@ -146,7 +217,7 @@ public class InteractListener extends PlayerListener {
 			}
 				break;
 			default:
-				RotatePiston.log.info("[RotatePiston]: something went wrong in rotation!");
+				RotatePiston.log.info("[RotatePiston]: something went wrong in Piston rotation!");
 				break;
 		}
 	}
