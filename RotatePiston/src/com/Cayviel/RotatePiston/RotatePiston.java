@@ -28,6 +28,7 @@ public class RotatePiston extends JavaPlugin {
 	static public Boolean EnStairs;
 	static public Boolean EnFurn;
 	static public Boolean EnDisp;
+	static public Boolean EnChest;
 	
 	@Override
 	public void onDisable() {
@@ -51,6 +52,7 @@ public class RotatePiston extends JavaPlugin {
 		EnStairs = config.getBoolean("Rotate.Stairs", false);
 		EnFurn = config.getBoolean("Rotate.Furnaces", false);
 		EnDisp = config.getBoolean("Rotate.Dispensers", false);
+		EnChest = config.getBoolean("Rotate.Chest", false);
 		config.save();
 
 		// set up our permissions

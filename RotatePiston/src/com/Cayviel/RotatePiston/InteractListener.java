@@ -10,6 +10,8 @@ import org.bukkit.event.block.Action;
 public class InteractListener extends PlayerListener {
 	byte pdataE = 1;
 	byte pdataS = 1;
+	BlockFace chd = BlockFace.NORTH;
+	
 	boolean RL = true;
 	byte clickeddirc(byte clickeddir) {
 		switch (clickeddir) {
@@ -39,11 +41,9 @@ public class InteractListener extends PlayerListener {
 		}
 		if (RotatePiston.useWand && PlayerWithPiston.getPlayer().getItemInHand().getType()!=Material.getMaterial(RotatePiston.WandName))
 			return;
-		
 		if ((PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK) || 
 			PlayerWithPiston.getAction().equals(Action.LEFT_CLICK_BLOCK)) && 
 			PlayerWithPiston.getPlayer().isSneaking()) { // if they clicked and sneaking
-
 			Material Blocktype = PlayerWithPiston.getClickedBlock().getType();
 			if ((Blocktype == Material.PISTON_BASE) || (Blocktype == Material.PISTON_STICKY_BASE)&&RotatePiston.EnPistons) {
 
@@ -100,16 +100,13 @@ public class InteractListener extends PlayerListener {
 				return;
 			}
 
-			if (PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
-				RL=true;
-			}else{
-				RL=false;
-			}
+			RL=PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK);
 			
 			if ((Blocktype == Material.PUMPKIN)||(Blocktype == Material.JACK_O_LANTERN)&&RotatePiston.EnPumpkins){
-				
+
 				if (RL){
 					PlayerWithPiston.getClickedBlock().setData((byte)((PlayerWithPiston.getClickedBlock().getData()+3) % 4));
+
 				}else{
 					PlayerWithPiston.getClickedBlock().setData((byte)((PlayerWithPiston.getClickedBlock().getData()+1) % 4));
 				}
@@ -167,6 +164,48 @@ public class InteractListener extends PlayerListener {
 						RotatePiston.log.info("Error during Dispenser rotation");
 						RotatePiston.log.info("Dispenser Data = "+ PlayerWithPiston.getClickedBlock().getData());
 						break;
+				}
+			}
+				return;
+			}
+
+			if (Blocktype == Material.CHEST&&RotatePiston.EnChest){
+				if (RL){
+					return; 
+					}
+				else{
+					if ((PlayerWithPiston.getClickedBlock().getRelative(BlockFace.NORTH).getType()==Material.CHEST)||(PlayerWithPiston.getClickedBlock().getRelative(BlockFace.SOUTH).getType()==Material.CHEST)||(PlayerWithPiston.getClickedBlock().getRelative(BlockFace.EAST).getType()==Material.CHEST)||(PlayerWithPiston.getClickedBlock().getRelative(BlockFace.WEST).getType()==Material.CHEST)){
+						if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.NORTH).getType()==Material.CHEST) chd=BlockFace.NORTH;
+						else if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.SOUTH).getType()==Material.CHEST) chd=BlockFace.SOUTH;
+						else if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.EAST).getType()==Material.CHEST) chd=BlockFace.EAST;
+						else if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.WEST).getType()==Material.CHEST) chd=BlockFace.WEST;
+					
+						switch (PlayerWithPiston.getClickedBlock().getData()){
+						case 2:
+							PlayerWithPiston.getClickedBlock().setData((byte) 3);
+							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 3); break;
+						case 3:
+							PlayerWithPiston.getClickedBlock().setData((byte) 2);
+							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 2); break;
+						case 4:
+							PlayerWithPiston.getClickedBlock().setData((byte) 5);
+							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 5); break;
+						case 5:
+							PlayerWithPiston.getClickedBlock().setData((byte) 4);
+							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 4); break;
+						}
+					}
+					else{
+						switch (PlayerWithPiston.getClickedBlock().getData()){
+						case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
+						case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
+						case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
+						case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+						default:
+							RotatePiston.log.info("Error during Chest rotation");
+							RotatePiston.log.info("Chest Data = "+ PlayerWithPiston.getClickedBlock().getData());
+							break;
+					}
 				}
 			}
 				return;
