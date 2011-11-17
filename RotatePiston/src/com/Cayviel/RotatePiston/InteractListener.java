@@ -149,6 +149,42 @@ public class InteractListener extends PlayerListener {
 			}
 				return;
 			}
+			if (Blocktype == Material.BURNING_FURNACE&&RotatePiston.EnFurn){
+				if (RL){
+					return; 
+					}
+				else{
+					switch (PlayerWithPiston.getClickedBlock().getData()){
+					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
+					case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
+					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
+					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+					default:
+						RotatePiston.log.info("Error during Furnace rotation");
+						RotatePiston.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
+						break;
+				}
+			}
+				return;
+			}
+			
+			if (Blocktype == Material.LEVER&&RotatePiston.EnLever){
+					switch (PlayerWithPiston.getClickedBlock().getData()){
+					
+					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 6); break;
+					case 6:PlayerWithPiston.getClickedBlock().setData((byte) 13); break;
+					case 13:PlayerWithPiston.getClickedBlock().setData((byte) 14); break;
+					case 14:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
+					case 9: break;
+					case 1: break;
+					default:
+						RotatePiston.log.info("Error during Lever rotation");
+						RotatePiston.log.info("Lever Data = "+ PlayerWithPiston.getClickedBlock().getData()); 
+
+						break;
+					}
+				return;
+			}
 			
 			if (Blocktype == Material.DISPENSER&&RotatePiston.EnDisp){
 				if (RL){
