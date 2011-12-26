@@ -1,4 +1,4 @@
-package com.Cayviel.RotatePiston;
+package com.Cayviel.RotateThings;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -33,19 +33,21 @@ public class InteractListener extends PlayerListener {
 	}
 
 	public void onPlayerInteract(PlayerInteractEvent PlayerWithPiston) {
-		if (RotatePiston.opOnlyBoolean && (!PlayerWithPiston.getPlayer().isOp()))
+		if (RotateThings.opOnlyBoolean && (!PlayerWithPiston.getPlayer().isOp()))
 			return;
-		if (RotatePiston.usePerm){
-			if (!RotatePiston.permissionHandler.has(PlayerWithPiston.getPlayer(), "rotatepiston"))
+		if (RotateThings.usePerm){
+			if (!RotateThings.permissionHandler.has(PlayerWithPiston.getPlayer(), "rotatethings"))
 				return;
 		}
-		if (RotatePiston.useWand && PlayerWithPiston.getPlayer().getItemInHand().getType()!=Material.getMaterial(RotatePiston.WandName))
+		if (RotateThings.useWand && (PlayerWithPiston.getPlayer().getItemInHand().getType()!=Material.getMaterial(RotateThings.WandName)))
 			return;
-		if ((PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK) || 
+		if (((PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK) || 
 			PlayerWithPiston.getAction().equals(Action.LEFT_CLICK_BLOCK)) && 
-			PlayerWithPiston.getPlayer().isSneaking()) { // if they clicked and sneaking
+			PlayerWithPiston.getPlayer().isSneaking())) { // if they clicked and sneaking
+			
 			Material Blocktype = PlayerWithPiston.getClickedBlock().getType();
-			if ((Blocktype == Material.PISTON_BASE) || (Blocktype == Material.PISTON_STICKY_BASE)&&RotatePiston.EnPistons) {
+			
+			if (((Blocktype == Material.PISTON_BASE) || (Blocktype == Material.PISTON_STICKY_BASE)) && (RotateThings.EnPistons)) {
 
 				if (Blocktype == Material.PISTON_STICKY_BASE)
 					pdataS = 3;
@@ -102,8 +104,8 @@ public class InteractListener extends PlayerListener {
 
 			RL=PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK);
 			
-			if ((Blocktype == Material.PUMPKIN)||(Blocktype == Material.JACK_O_LANTERN)&&RotatePiston.EnPumpkins){
-
+			if (((Blocktype == Material.PUMPKIN)||(Blocktype == Material.JACK_O_LANTERN))&&RotateThings.EnPumpkins){
+				
 				if (RL){
 					PlayerWithPiston.getClickedBlock().setData((byte)((PlayerWithPiston.getClickedBlock().getData()+3) % 4));
 
@@ -112,26 +114,26 @@ public class InteractListener extends PlayerListener {
 				}
 				return;
 			}
-			if ((Blocktype == Material.COBBLESTONE_STAIRS)||(Blocktype == Material.WOOD_STAIRS)&&RotatePiston.EnStairs){
+			if ((Blocktype == Material.COBBLESTONE_STAIRS)||(Blocktype == Material.WOOD_STAIRS)&&RotateThings.EnStairs){
 				if (RL){
 				switch (PlayerWithPiston.getClickedBlock().getData()){
 				case 0:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
 				case 3:PlayerWithPiston.getClickedBlock().setData((byte) 1); break;
 				case 1:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
 				case 2:PlayerWithPiston.getClickedBlock().setData((byte) 0); break;
-				default: RotatePiston.log.info("Error during Stairs rotation"); break;
+				default: RotateThings.log.info("Error during Stairs rotation"); break;
 				}}else{
 					switch (PlayerWithPiston.getClickedBlock().getData()){
 					case 0:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
 					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 0); break;
 					case 1:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
 					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 1); break;
-					default: RotatePiston.log.info("Error during Stairs rotation"); break;
+					default: RotateThings.log.info("Error during Stairs rotation"); break;
 					}					
 				}
 				return;
 			}
-			if (Blocktype == Material.FURNACE&&RotatePiston.EnFurn){
+			if (Blocktype == Material.FURNACE&&RotateThings.EnFurn){
 				if (RL){
 					return; 
 					}
@@ -142,14 +144,14 @@ public class InteractListener extends PlayerListener {
 					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
 					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
 					default:
-						RotatePiston.log.info("Error during Furnace rotation");
-						RotatePiston.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
+						RotateThings.log.info("Error during Furnace rotation");
+						RotateThings.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
 						break;
 				}
 			}
 				return;
 			}
-			if (Blocktype == Material.BURNING_FURNACE&&RotatePiston.EnFurn){
+			if (Blocktype == Material.BURNING_FURNACE&&RotateThings.EnFurn){
 				if (RL){
 					return; 
 					}
@@ -160,15 +162,15 @@ public class InteractListener extends PlayerListener {
 					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
 					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
 					default:
-						RotatePiston.log.info("Error during Furnace rotation");
-						RotatePiston.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
+						RotateThings.log.info("Error during Furnace rotation");
+						RotateThings.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
 						break;
 				}
 			}
 				return;
 			}
 			
-			if (Blocktype == Material.LEVER&&RotatePiston.EnLever){
+			if (Blocktype == Material.LEVER&&RotateThings.EnLever){
 					switch (PlayerWithPiston.getClickedBlock().getData()){
 					
 					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 6); break;
@@ -178,15 +180,15 @@ public class InteractListener extends PlayerListener {
 					case 9: break;
 					case 1: break;
 					default:
-						RotatePiston.log.info("Error during Lever rotation");
-						RotatePiston.log.info("Lever Data = "+ PlayerWithPiston.getClickedBlock().getData()); 
+						RotateThings.log.info("Error during Lever rotation");
+						RotateThings.log.info("Lever Data = "+ PlayerWithPiston.getClickedBlock().getData()); 
 
 						break;
 					}
 				return;
 			}
 			
-			if (Blocktype == Material.DISPENSER&&RotatePiston.EnDisp){
+			if (Blocktype == Material.DISPENSER&&RotateThings.EnDisp){
 				if (RL){
 					return; 
 					}
@@ -197,15 +199,15 @@ public class InteractListener extends PlayerListener {
 					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
 					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
 					default:
-						RotatePiston.log.info("Error during Dispenser rotation");
-						RotatePiston.log.info("Dispenser Data = "+ PlayerWithPiston.getClickedBlock().getData());
+						RotateThings.log.info("Error during Dispenser rotation");
+						RotateThings.log.info("Dispenser Data = "+ PlayerWithPiston.getClickedBlock().getData());
 						break;
 				}
 			}
 				return;
 			}
 
-			if (Blocktype == Material.CHEST&&RotatePiston.EnChest){
+			if (Blocktype == Material.CHEST&&RotateThings.EnChest){
 				if (RL){
 					return; 
 					}
@@ -238,8 +240,8 @@ public class InteractListener extends PlayerListener {
 						case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
 						case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
 						default:
-							RotatePiston.log.info("Error during Chest rotation");
-							RotatePiston.log.info("Chest Data = "+ PlayerWithPiston.getClickedBlock().getData());
+							RotateThings.log.info("Error during Chest rotation");
+							RotateThings.log.info("Chest Data = "+ PlayerWithPiston.getClickedBlock().getData());
 							break;
 					}
 				}
@@ -264,7 +266,7 @@ public class InteractListener extends PlayerListener {
 			case 5:
 				return BlockFace.SOUTH;
 			default: {
-				RotatePiston.log.info("enum default chose");
+				RotateThings.log.info("enum default chose");
 				return BlockFace.DOWN;
 			}
 		}
@@ -292,7 +294,7 @@ public class InteractListener extends PlayerListener {
 			}
 				break;
 			default:
-				RotatePiston.log.info("[RotatePiston]: something went wrong in Piston rotation!");
+				RotateThings.log.info("[RotateThings]: something went wrong in Piston rotation!");
 				break;
 		}
 	}
