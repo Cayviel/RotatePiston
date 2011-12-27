@@ -2,6 +2,7 @@ package com.Cayviel.RotateThings;
 
 import java.util.logging.Logger;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -42,21 +43,34 @@ public class RotateThings extends JavaPlugin {
 		// grab an instance of plugin manager
 		PluginManager pm = getServer().getPluginManager();
 		// register player interaction
+		
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, il, Priority.Normal, this);
-
-		//useWand = this.getConfig().getBoolean("Wand.Use a Wand", false);
-		useWand = boolConfig("Wand.Use a Wand",true);
-		WandName = stringConfig("Wand.Wand", "AIR");
-		opOnlyBoolean = boolConfig("Op only (instead of Permissions)", true);
-		EnPistons = boolConfig("Rotate.Pistons", true);
-		EnPumpkins = boolConfig("Rotate.Pumpkins", false);
-		EnStairs = boolConfig("Rotate.Stairs", false);
-		EnFurn = boolConfig("Rotate.Furnaces", false);
-		EnDisp = boolConfig("Rotate.Dispensers", false);
-		EnChest = boolConfig("Rotate.Chest", false);
-		EnLever = boolConfig("Rotate.Levers", false);
-
+		FileConfiguration config = this.getConfig();
+		
+		config.addDefault("Wand.Use a Wand",true);
+		config.addDefault("Wand.Wand", "AIR");
+		config.addDefault("Op only (instead of Permissions)", true);
+		config.addDefault("Rotate.Pistons", true);
+		config.addDefault("Rotate.Pumpkins", false);
+		config.addDefault("Rotate.Stairs", false);
+		config.addDefault("Rotate.Furnaces", false);
+		config.addDefault("Rotate.Dispensers", false);
+		config.addDefault("Rotate.Chest", false);
+		config.addDefault("Rotate.Levers", false);		
+		
+		config.options().copyDefaults(true);
 		this.saveConfig();
+		
+		useWand = config.getBoolean("Wand.Use a Wand");
+		WandName = config.getString("Wand.Wand", "AIR");
+		opOnlyBoolean = config.getBoolean("Op only (instead of Permissions)");
+		EnPistons = config.getBoolean("Rotate.Pistons");
+		EnPumpkins = config.getBoolean("Rotate.Pumpkins");
+		EnStairs = config.getBoolean("Rotate.Stairs");
+		EnFurn = config.getBoolean("Rotate.Furnaces");
+		EnDisp = config.getBoolean("Rotate.Dispensers");
+		EnChest = config.getBoolean("Rotate.Chest");
+		EnLever = config.getBoolean("Rotate.Levers");
 		
 		// set up our permissions
 		if (!opOnlyBoolean && (getServer().getPluginManager().getPlugin("Permissions")!=null)){
@@ -78,26 +92,6 @@ public class RotateThings extends JavaPlugin {
 		permissionHandler = ((Permissions) permissionsPlugin).getHandler();
 		log.info("Found and will use plugin " + ((Permissions) permissionsPlugin).getDescription().getFullName());
 	}
-	
-	private boolean boolConfig(String string, boolean x){
-		if (this.getConfig().isSet(string)){
-			x = this.getConfig().getBoolean(string);
-			}else{
-			this.getConfig().set(string, x);
-		}
-		return x;
-	}
-	
-	private String stringConfig(String string, String x){
-		
-		if (this.getConfig().isSet(string)){
-			x = this.getConfig().getString(string);
-			}else{
-			this.getConfig().set(string, x);
-		}
-		return x;
-	}
-	
 }
 
  
