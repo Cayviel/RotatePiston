@@ -1,5 +1,7 @@
 package com.Cayviel.RotateThings;
 
+import java.util.logging.Logger;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -10,6 +12,7 @@ import org.bukkit.event.block.Action;
 public class InteractListener extends PlayerListener {
 	byte pdataE = 1;
 	byte pdataS = 1;
+	byte data;
 	BlockFace chd = BlockFace.NORTH;
 	
 	boolean RL = true;
@@ -31,22 +34,32 @@ public class InteractListener extends PlayerListener {
 				return 1;
 		}
 	}
-
-	public void onPlayerInteract(PlayerInteractEvent PlayerWithPiston) {
-		if (RotateThings.opOnlyBoolean && (!PlayerWithPiston.getPlayer().isOp()))
+	void setD(Block b, int i){
+		b.setData((byte)i);
+	}
+	public void onPlayerInteract(PlayerInteractEvent ievent) {
+		if (RotateThings.opOnlyBoolean && (!ievent.getPlayer().isOp()))
 			return;
 		if (RotateThings.usePerm){
-			if (!RotateThings.permissionHandler.has(PlayerWithPiston.getPlayer(), "rotatethings"))
+			if (!RotateThings.permissionHandler.has(ievent.getPlayer(), "rotatethings"))
 				return;
 		}
-		if (RotateThings.useWand && (PlayerWithPiston.getPlayer().getItemInHand().getType()!=Material.getMaterial(RotateThings.WandName)))
-			return;
-		if (((PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK) || 
-			PlayerWithPiston.getAction().equals(Action.LEFT_CLICK_BLOCK)) && 
-			PlayerWithPiston.getPlayer().isSneaking())) { // if they clicked and sneaking
+	
+		if (((ievent.getAction().equals(Action.RIGHT_CLICK_BLOCK) || 
+			ievent.getAction().equals(Action.LEFT_CLICK_BLOCK)) && 
+			ievent.getPlayer().isSneaking())) { // if they clicked and sneaking
 			
-			Material Blocktype = PlayerWithPiston.getClickedBlock().getType();
+			if (RotateThings.useWand && (ievent.getPlayer().getItemInHand().getType()!=Material.getMaterial(RotateThings.WandName))){return;}
 			
+			Block b = ievent.getClickedBlock(); //interacted block, block b
+			Material Blocktype = b.getType();//type of block
+			int bID = Blocktype.getId();
+			BlockFace clickedface = ievent.getBlockFace();
+
+
+			data = b.getData();
+			Logger log = RotateThings.log;
+			//Pistons
 			if (((Blocktype == Material.PISTON_BASE) || (Blocktype == Material.PISTON_STICKY_BASE)) && (RotateThings.EnPistons)) {
 
 				if (Blocktype == Material.PISTON_STICKY_BASE)
@@ -54,10 +67,7 @@ public class InteractListener extends PlayerListener {
 				else
 					pdataS = 1;
 
-				BlockFace clickedface = PlayerWithPiston.getBlockFace();
-				Block piston = PlayerWithPiston.getClickedBlock();
-
-				byte dir = (byte) (piston.getData() % 8);
+				byte dir = (byte) (data % 8);
 				byte clickeddir;
 				byte dirsetto;
 
@@ -76,7 +86,7 @@ public class InteractListener extends PlayerListener {
 				else
 					clickeddir = 1; // by default we will pick up
 
-				if (PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+				if (ievent.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 					if (clickeddir == dir) 
 						dirsetto = clickeddirc(clickeddir);
 					else
@@ -90,158 +100,253 @@ public class InteractListener extends PlayerListener {
 					dirsetto = (byte) ((dir + 1) % 6);
 				}
 
-				if ((piston.isBlockPowered() || piston.isBlockIndirectlyPowered()) &&
-					piston.getRelative(convertdirtoface(dirsetto)).getType() == Material.AIR) 
+				if ((b.isBlockPowered() || b.isBlockIndirectlyPowered()) &&
+					b.getRelative(convertdirtoface(dirsetto)).getType() == Material.AIR) 
 					pdataE = 2;
 				else
 					pdataE = 1;
 
-				Rotate(piston, (byte) (pdataE * pdataS), dirsetto);
+				Rotate(b, (byte) (pdataE * pdataS), dirsetto);
 				pdataE = 1;
 				pdataS = 1;
 				return;
 			}
 
-			RL=PlayerWithPiston.getAction().equals(Action.RIGHT_CLICK_BLOCK);
+			RL=ievent.getAction().equals(Action.RIGHT_CLICK_BLOCK);
 			
-			if (((Blocktype == Material.PUMPKIN)||(Blocktype == Material.JACK_O_LANTERN))&&RotateThings.EnPumpkins){
-				
+			//Diodes
+			if (((Blocktype == Material.DIODE)||(Blocktype == Material.DIODE_BLOCK_OFF)|(Blocktype == Material.DIODE_BLOCK_ON))&&(RotateThings.EnDiode)){
 				if (RL){
-					PlayerWithPiston.getClickedBlock().setData((byte)((PlayerWithPiston.getClickedBlock().getData()+3) % 4));
-
-				}else{
-					PlayerWithPiston.getClickedBlock().setData((byte)((PlayerWithPiston.getClickedBlock().getData()+1) % 4));
+					ievent.setCancelled(true);
+					if (data % 4 == 3){setD(b, data-3);}else{setD(b, data+1); }
+				return;
 				}
 				return;
 			}
-			if ((Blocktype == Material.COBBLESTONE_STAIRS)||(Blocktype == Material.WOOD_STAIRS)&&RotateThings.EnStairs){
+			//Rails
+			if (((Blocktype == Material.POWERED_RAIL)||(Blocktype == Material.RAILS)|(Blocktype == Material.DETECTOR_RAIL))&&(RotateThings.EnRails)){
 				if (RL){
-				switch (PlayerWithPiston.getClickedBlock().getData()){
-				case 0:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
-				case 3:PlayerWithPiston.getClickedBlock().setData((byte) 1); break;
-				case 1:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
-				case 2:PlayerWithPiston.getClickedBlock().setData((byte) 0); break;
-				default: RotateThings.log.info("Error during Stairs rotation"); break;
+					if (data % 10 == 9){setD(b, data-9);}else{setD(b, data+1); }
+				return;
+				}else{
+					if (data % 10 == 0){setD(b, data+9);}else{setD(b, data-1); }
+				}
+				return;
+			}
+			
+			//Fence Gates
+			if ((bID == 107)&&RotateThings.EnFenceGate){
+				int opened = 0;
+				if (data >=4){ opened = 4;}
+				if (RL){
+					ievent.setCancelled(true);
+				switch(data % 4){
+					case 0:setD(b, 2+opened); break;
+					case 1:setD(b, 3+opened); break;
+					case 2:setD(b, 1+opened); break;
+					case 3:setD(b, 0+opened); break;
+					default: log.info("Error during Fence Gate rotation" + data); break;
+				}
+				}else{
+				switch(data % 4){
+					case 2:setD(b, 0+opened); break;
+					case 3:setD(b, 1+opened); break;
+					case 1:setD(b, 2+opened); break;
+					case 0:setD(b, 3+opened); break;
+					default: log.info("Error during Fence Gate rotation " + data); break;
+				}
+				}
+			}
+			
+			//Trap Door
+			
+			if ((bID == 96)&&RotateThings.EnTrapDoor){ 
+				int opened = 0;
+				if (data >=4){ opened = 4;}
+				ievent.setCancelled(true);
+				if (RL){
+				switch(data % 4){
+					case 0:setD(b, 2+opened); break;
+					case 1:setD(b, 3+opened); break;
+					case 2:setD(b, 1+opened); break;
+					case 3:setD(b, 0+opened); break;
+					default: log.info("Error during Trap Door rotation" + data); break;
+				}
+				}else{
+				switch(data % 4){
+					case 2:setD(b, 0+opened); break;
+					case 3:setD(b, 1+opened); break;
+					case 1:setD(b, 2+opened); break;
+					case 0:setD(b, 3+opened); break;
+					default: log.info("Error during Trap Door rotation " + data); break;
+				}
+				}
+			}
+
+			//Doors
+			if (((bID == 64)||(bID==71))){ 
+				if (((bID==64)&&!(RotateThings.EnWoodDoor))||((bID==71)&&!(RotateThings.EnIronDoor))){return;} //Cancel, if It is wood, and wood is not enabled. Etc.
+				ievent.setCancelled(true); //Don't change door open status.
+				boolean top;
+				Block b2;
+				top = (data >= 8);
+
+				if (top){
+					b2 = b.getRelative(BlockFace.DOWN);
+				}else{
+					b2 = b.getRelative(BlockFace.UP);
+				}
+				
+				if((b2.getType().getId()!=64)&&(b2.getType().getId()!=71)){
+					return;
+				} 
+				if (RL){
+					if (data % 4 ==3){
+						setD(b, data-3);
+						setD(b2,8+ data-3);
+					}else{
+						setD(b, data+1);
+						setD(b2, 8+data+1);
+					}
+				}else{
+					if (data % 4 ==0){
+						setD(b, data+3);
+						setD(b2, 8+data+3);
+					}else{
+						setD(b, data-1);
+						setD(b2, 8+data-1);
+					}
+				}
+			}
+			
+			//Pumpkins
+			if (((Blocktype == Material.PUMPKIN)||(Blocktype == Material.JACK_O_LANTERN))&&RotateThings.EnPumpkins){
+				
+				if (RL){
+					setD(b,((data+3) % 4));
+
+				}else{
+					setD(b,((data+1) % 4));
+				}
+				return;
+			}
+			
+			//Stairs
+			if (((Blocktype == Material.COBBLESTONE_STAIRS)||(Blocktype == Material.WOOD_STAIRS)||(bID == 108)||(bID == 109)||(bID == 114))&&RotateThings.EnStairs){
+				if (RL){
+				switch (data){
+				case 0:setD(b, 3); break;
+				case 3:setD(b, 1); break;
+				case 1:setD(b, 2); break;
+				case 2:setD(b, 0); break;
+				default: log.info("Error during Stairs rotation"); break;
 				}}else{
-					switch (PlayerWithPiston.getClickedBlock().getData()){
-					case 0:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
-					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 0); break;
-					case 1:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
-					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 1); break;
-					default: RotateThings.log.info("Error during Stairs rotation"); break;
+					switch (data){
+					case 0:setD(b, 2); break;
+					case 3:setD(b, 0); break;
+					case 1:setD(b, 3); break;
+					case 2:setD(b, 1); break;
+					default: log.info("Error during Stairs rotation"); break;
 					}					
 				}
 				return;
 			}
-			if (Blocktype == Material.FURNACE&&RotateThings.EnFurn){
-				if (RL){
-					return; 
-					}
-				else{
-					switch (PlayerWithPiston.getClickedBlock().getData()){
-					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
-					case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
-					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
-					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
-					default:
-						RotateThings.log.info("Error during Furnace rotation");
-						RotateThings.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
-						break;
-				}
-			}
-				return;
-			}
-			if (Blocktype == Material.BURNING_FURNACE&&RotateThings.EnFurn){
-				if (RL){
-					return; 
-					}
-				else{
-					switch (PlayerWithPiston.getClickedBlock().getData()){
-					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
-					case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
-					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
-					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
-					default:
-						RotateThings.log.info("Error during Furnace rotation");
-						RotateThings.log.info("Furnace Data = "+ PlayerWithPiston.getClickedBlock().getData());
-						break;
-				}
-			}
-				return;
-			}
 			
+			//Furnaces & Dispensers
+			if ((Blocktype == Material.FURNACE&&RotateThings.EnFurn)||(Blocktype == Material.BURNING_FURNACE&&RotateThings.EnFurn)||((Blocktype == Material.DISPENSER)&&(RotateThings.EnDisp))){
+				if (RL){
+					return; 
+					}
+				else{
+					switch (data){
+					case 2:setD(b, 5); break;
+					case 4:setD(b, 2); break;
+					case 3:setD(b, 4); break;
+					case 5:setD(b, 3); break;
+					default:
+						log.info("Error during rotation");
+						log.info("Furnace Data = "+ data);
+						break;
+				}
+			}
+				return;
+			}
+
+			//Levers
 			if (Blocktype == Material.LEVER&&RotateThings.EnLever){
-					switch (PlayerWithPiston.getClickedBlock().getData()){
+					switch (data){
 					
-					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 6); break;
-					case 6:PlayerWithPiston.getClickedBlock().setData((byte) 13); break;
-					case 13:PlayerWithPiston.getClickedBlock().setData((byte) 14); break;
-					case 14:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
+					case 5:setD(b, 6); break;
+					case 6:setD(b, 13); break;
+					case 13:setD(b, 14); break;
+					case 14:setD(b, 5); break;
 					case 9: break;
 					case 1: break;
 					default:
-						RotateThings.log.info("Error during Lever rotation");
-						RotateThings.log.info("Lever Data = "+ PlayerWithPiston.getClickedBlock().getData()); 
+						log.info("Error during Lever rotation");
+						log.info("Lever Data = "+ data); 
 
 						break;
 					}
 				return;
 			}
-			
-			if (Blocktype == Material.DISPENSER&&RotateThings.EnDisp){
+			//Dispensers
+			if ((Blocktype == Material.DISPENSER)&&(RotateThings.EnDisp)){
 				if (RL){
 					return; 
 					}
 				else{
-					switch (PlayerWithPiston.getClickedBlock().getData()){
-					case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
-					case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
-					case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
-					case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+					switch (data){
+					case 2:setD(b, 5); break;
+					case 4:setD(b, 2); break;
+					case 3:setD(b, 4); break;
+					case 5:setD(b, 3); break;
 					default:
-						RotateThings.log.info("Error during Dispenser rotation");
-						RotateThings.log.info("Dispenser Data = "+ PlayerWithPiston.getClickedBlock().getData());
+						log.info("Error during Dispenser rotation");
+						log.info("Dispenser Data = "+ data);
 						break;
 				}
 			}
 				return;
 			}
-
+			
+		
+			//Chests
 			if (Blocktype == Material.CHEST&&RotateThings.EnChest){
 				if (RL){
 					return; 
 					}
 				else{
-					if ((PlayerWithPiston.getClickedBlock().getRelative(BlockFace.NORTH).getType()==Material.CHEST)||(PlayerWithPiston.getClickedBlock().getRelative(BlockFace.SOUTH).getType()==Material.CHEST)||(PlayerWithPiston.getClickedBlock().getRelative(BlockFace.EAST).getType()==Material.CHEST)||(PlayerWithPiston.getClickedBlock().getRelative(BlockFace.WEST).getType()==Material.CHEST)){
-						if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.NORTH).getType()==Material.CHEST) chd=BlockFace.NORTH;
-						else if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.SOUTH).getType()==Material.CHEST) chd=BlockFace.SOUTH;
-						else if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.EAST).getType()==Material.CHEST) chd=BlockFace.EAST;
-						else if (PlayerWithPiston.getClickedBlock().getRelative(BlockFace.WEST).getType()==Material.CHEST) chd=BlockFace.WEST;
+					if ((b.getRelative(BlockFace.NORTH).getType()==Material.CHEST)||(b.getRelative(BlockFace.SOUTH).getType()==Material.CHEST)||(b.getRelative(BlockFace.EAST).getType()==Material.CHEST)||(b.getRelative(BlockFace.WEST).getType()==Material.CHEST)){
+						if (b.getRelative(BlockFace.NORTH).getType()==Material.CHEST) chd=BlockFace.NORTH;
+						else if (b.getRelative(BlockFace.SOUTH).getType()==Material.CHEST) chd=BlockFace.SOUTH;
+						else if (b.getRelative(BlockFace.EAST).getType()==Material.CHEST) chd=BlockFace.EAST;
+						else if (b.getRelative(BlockFace.WEST).getType()==Material.CHEST) chd=BlockFace.WEST;
 					
-						switch (PlayerWithPiston.getClickedBlock().getData()){
+						switch (data){
 						case 2:
-							PlayerWithPiston.getClickedBlock().setData((byte) 3);
-							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 3); break;
+							setD(b, 3);
+							b.getRelative(chd).setData((byte) 3); break;
 						case 3:
-							PlayerWithPiston.getClickedBlock().setData((byte) 2);
-							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 2); break;
+							setD(b, 2);
+							b.getRelative(chd).setData((byte) 2); break;
 						case 4:
-							PlayerWithPiston.getClickedBlock().setData((byte) 5);
-							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 5); break;
+							setD(b, 5);
+							b.getRelative(chd).setData((byte) 5); break;
 						case 5:
-							PlayerWithPiston.getClickedBlock().setData((byte) 4);
-							PlayerWithPiston.getClickedBlock().getRelative(chd).setData((byte) 4); break;
+							setD(b, 4);
+							b.getRelative(chd).setData((byte) 4); break;
 						}
 					}
 					else{
-						switch (PlayerWithPiston.getClickedBlock().getData()){
-						case 2:PlayerWithPiston.getClickedBlock().setData((byte) 5); break;
-						case 4:PlayerWithPiston.getClickedBlock().setData((byte) 2); break;
-						case 3:PlayerWithPiston.getClickedBlock().setData((byte) 4); break;
-						case 5:PlayerWithPiston.getClickedBlock().setData((byte) 3); break;
+						switch (data){
+						case 2:setD(b, 5); break;
+						case 4:setD(b, 2); break;
+						case 3:setD(b, 4); break;
+						case 5:setD(b, 3); break;
 						default:
-							RotateThings.log.info("Error during Chest rotation");
-							RotateThings.log.info("Chest Data = "+ PlayerWithPiston.getClickedBlock().getData());
+							log.info("Error during Chest rotation");
+							log.info("Chest Data = "+ data);
 							break;
 					}
 				}
@@ -265,32 +370,29 @@ public class InteractListener extends PlayerListener {
 				return BlockFace.NORTH;
 			case 5:
 				return BlockFace.SOUTH;
-			default: {
-				RotateThings.log.info("enum default chose");
-				return BlockFace.DOWN;
-			}
+			default: RotateThings.log.info("enum default chose"); return BlockFace.DOWN;
 		}
 	}
 
-	private void Rotate(Block piston, byte pdata, byte dirsetto) {
-		piston.setTypeId(0);
+	private void Rotate(Block b, byte pdata, byte dirsetto) {
+		b.setTypeId(0);
 		switch (pdata) {
 			case 1: {
-				piston.setTypeIdAndData(33, dirsetto, false);
+				b.setTypeIdAndData(33, dirsetto, false);
 			}
 				break;
 			case 2: {
-				piston.setTypeIdAndData(33, (byte) (dirsetto + 8), false);
-				piston.getRelative(convertdirtoface(dirsetto)).setTypeIdAndData(34, dirsetto, false);
+				b.setTypeIdAndData(33, (byte) (dirsetto + 8), false);
+				b.getRelative(convertdirtoface(dirsetto)).setTypeIdAndData(34, dirsetto, false);
 			}
 				break;
 			case 3: {
-				piston.setTypeIdAndData(29, dirsetto, false);
+				b.setTypeIdAndData(29, dirsetto, false);
 			}
 				break;
 			case 6: {
-				piston.setTypeIdAndData(29, (byte) (dirsetto + 8), false);
-				piston.getRelative(convertdirtoface(dirsetto)).setTypeIdAndData(34, (byte) (dirsetto + 8), false);
+				b.setTypeIdAndData(29, (byte) (dirsetto + 8), false);
+				b.getRelative(convertdirtoface(dirsetto)).setTypeIdAndData(34, (byte) (dirsetto + 8), false);
 			}
 				break;
 			default:

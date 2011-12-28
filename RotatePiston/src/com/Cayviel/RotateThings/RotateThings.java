@@ -30,6 +30,13 @@ public class RotateThings extends JavaPlugin {
 	static public Boolean EnDisp;
 	static public Boolean EnChest;
 	static public Boolean EnLever;
+	static public Boolean EnDiode;
+	static public Boolean EnRails;
+	static public Boolean EnFenceGate;
+	static public Boolean EnTrapDoor;
+	static public Boolean EnIronDoor;
+	static public Boolean EnWoodDoor;
+
 	
 //	static File confile;
 	
@@ -45,18 +52,25 @@ public class RotateThings extends JavaPlugin {
 		// register player interaction
 		
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, il, Priority.Normal, this);
+		
 		FileConfiguration config = this.getConfig();
 		
 		config.addDefault("Wand.Use a Wand",true);
 		config.addDefault("Wand.Wand", "AIR");
 		config.addDefault("Op only (instead of Permissions)", true);
 		config.addDefault("Rotate.Pistons", true);
-		config.addDefault("Rotate.Pumpkins", false);
+		config.addDefault("Rotate.Pumpkins", true);
 		config.addDefault("Rotate.Stairs", false);
 		config.addDefault("Rotate.Furnaces", false);
 		config.addDefault("Rotate.Dispensers", false);
 		config.addDefault("Rotate.Chest", false);
-		config.addDefault("Rotate.Levers", false);		
+		config.addDefault("Rotate.Levers", false);
+		config.addDefault("Rotate.Fence Gates", false);
+		config.addDefault("Rotate.Wooden Doors", false);
+		config.addDefault("Rotate.Iron Doors", false);
+		config.addDefault("Rotate.Trap Doors", false);
+		config.addDefault("Rotate.Redstone Repeaters", false);
+		config.addDefault("Rotate.Rails", false);
 		
 		config.options().copyDefaults(true);
 		this.saveConfig();
@@ -71,6 +85,12 @@ public class RotateThings extends JavaPlugin {
 		EnDisp = config.getBoolean("Rotate.Dispensers");
 		EnChest = config.getBoolean("Rotate.Chest");
 		EnLever = config.getBoolean("Rotate.Levers");
+		EnFenceGate = config.getBoolean("Rotate.Fence Gates");
+		EnWoodDoor = config.getBoolean("Rotate.Wooden Doors");
+		EnIronDoor = config.getBoolean("Rotate.Iron Doors");
+		EnTrapDoor = config.getBoolean("Rotate.Trap Doors");
+		EnDiode = config.getBoolean("Rotate.Redstone Repeaters");
+		EnRails = config.getBoolean("Rotate.Rails");
 		
 		// set up our permissions
 		if (!opOnlyBoolean && (getServer().getPluginManager().getPlugin("Permissions")!=null)){
