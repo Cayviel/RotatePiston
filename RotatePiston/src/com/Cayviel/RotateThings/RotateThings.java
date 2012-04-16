@@ -3,19 +3,13 @@ package com.Cayviel.RotateThings;
 import java.util.logging.Logger;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
-import org.bukkit.plugin.Plugin;
 
 
 public class RotateThings extends JavaPlugin {
 
 	private static InteractListener il = new InteractListener();
-	public static PermissionHandler permissionHandler;
 	public static Logger log = Logger.getLogger("Minecraft");
 
 //	private YamlConfiguration config;
@@ -51,7 +45,7 @@ public class RotateThings extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		// register player interaction
 		
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, il, Priority.Normal, this);
+		pm.registerEvents(il, this);
 		
 		FileConfiguration config = this.getConfig();
 		
@@ -93,24 +87,11 @@ public class RotateThings extends JavaPlugin {
 		EnRails = config.getBoolean("Rotate.Rails");
 		
 		// set up our permissions
-		if (!opOnlyBoolean && (getServer().getPluginManager().getPlugin("Permissions")!=null)){
-			setupPermissions();
+		if (!opOnlyBoolean){
 			usePerm = true;
 		}
 		// we have successfully enabled the plugin
 		log.info("[RotateThigns]: Enabled!");
-	}
-
-	private void setupPermissions() {
-		// if our permissions handler isn't null we shall return
-		if (permissionHandler != null)
-			return;
-
-		// grab an instance of the permissions plugin
-		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
-
-		permissionHandler = ((Permissions) permissionsPlugin).getHandler();
-		log.info("Found and will use plugin " + ((Permissions) permissionsPlugin).getDescription().getFullName());
 	}
 }
 

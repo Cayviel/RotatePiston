@@ -5,11 +5,12 @@ import java.util.logging.Logger;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.Action;
 
-public class InteractListener extends PlayerListener {
+public class InteractListener implements Listener {
 	byte pdataE = 1;
 	byte pdataS = 1;
 	byte data;
@@ -37,11 +38,13 @@ public class InteractListener extends PlayerListener {
 	void setD(Block b, int i){
 		b.setData((byte)i);
 	}
+	
+	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent ievent) {
 		if (RotateThings.opOnlyBoolean && (!ievent.getPlayer().isOp()))
 			return;
 		if (RotateThings.usePerm){
-			if (!RotateThings.permissionHandler.has(ievent.getPlayer(), "rotatethings"))
+			if (!ievent.getPlayer().hasPermission("rotatethings"))
 				return;
 		}
 	
